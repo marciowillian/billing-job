@@ -1,5 +1,8 @@
 package com.mwcc.billingjob;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.JobRepositoryTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
@@ -37,19 +41,34 @@ class BillingJobApplicationTests {
 		this.jobRepositoryTestUtils.removeJobExecutions();
 	}
 	
+//	@Test
+//	void testJobExecution(CapturedOutput output) throws Exception {
+//		//given
+//		JobParameters jobParameters = this.jobLauncherTestUtils.getUniqueJobParametersBuilder()
+//				.addString("input.file", "/some/imput/file")
+//				.toJobParameters();
+//						
+//		//when
+//		JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
+//		
+//		//then
+//		Assertions.assertTrue(output.getOut().contains("processing billing information from file /some/input/file"));
+//		Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+//	}
+
 	@Test
 	void testJobExecution(CapturedOutput output) throws Exception {
 		//given
-		JobParameters jobParameters = this.jobLauncherTestUtils.getUniqueJobParametersBuilder()
-				.addString("input.file", "/some/imput/file")
+		JobParameters jobParameters = new JobParametersBuilder()
+				.addString("input.file", "src/main/resources/billing-2023-01.csv")
 				.toJobParameters();
-						
+		
 		//when
 		JobExecution jobExecution = this.jobLauncherTestUtils.launchJob(jobParameters);
 		
 		//then
-		Assertions.assertTrue(output.getOut().contains("processing billing information from file /some/input/file"));
 		Assertions.assertEquals(ExitStatus.COMPLETED, jobExecution.getExitStatus());
+		Assertions.assertTrue(Files.exists(Paths.get("staging", "billing-2023-01.csv")));
 	}
 
 }
